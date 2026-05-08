@@ -6,28 +6,36 @@
 <title>EMBER // Mission Control — CRM + Agent Control Layer</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Instrument+Serif:ital@0;1&family=Inter+Tight:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" type="image/svg+xml" href="logo.svg?v=20260507" />
 <style>
   :root {
-    --bg: #0a0b0d;
-    --bg-elev: #111316;
-    --bg-elev-2: #16191e;
-    --line: #20242b;
-    --line-bright: #2c323a;
-    --text: #e8eaed;
-    --text-dim: #8b919a;
-    --text-faint: #555b64;
-    --amber: #ffb547;
-    --amber-glow: rgba(255, 181, 71, 0.12);
+    /* EmberBots.ai controlled-flame system: orange heat inside blue/violet ops */
+    --bg: #08090d;
+    --bg-elev: rgba(18, 24, 44, 0.82);
+    --bg-elev-2: rgba(16, 21, 40, 0.94);
+    --line: rgba(91, 105, 164, 0.28);
+    --line-bright: rgba(255, 138, 31, 0.38);
+    --text: #edf2ff;
+    --text-dim: #a6b0c8;
+    --text-faint: #697391;
+    --amber: #ff8a1f;
+    --ember: #ff6a00;
+    --gold: #ffb84d;
+    --amber-glow: rgba(255, 106, 0, 0.24);
     --green: #4ade80;
     --green-glow: rgba(74, 222, 128, 0.12);
     --red: #ef4444;
     --red-glow: rgba(239, 68, 68, 0.14);
-    --blue: #60a5fa;
-    --purple: #c084fc;
+    --blue: #2563ff;
+    --blue-glow: rgba(37, 99, 255, 0.14);
+    --purple: #7a3cff;
+    --violet-glow: rgba(122, 60, 255, 0.16);
+    --white: #ffffff;
     --mono: 'JetBrains Mono', ui-monospace, monospace;
     --serif: 'Instrument Serif', Georgia, serif;
-    --sans: 'Inter Tight', -apple-system, sans-serif;
+    --sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    --display: 'Space Grotesk', 'Inter', -apple-system, sans-serif;
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
   html, body {
@@ -40,12 +48,25 @@
     overflow-x: hidden;
   }
   body {
-    background-image:
-      radial-gradient(ellipse at top left, rgba(255,181,71,0.04), transparent 60%),
-      radial-gradient(ellipse at bottom right, rgba(96,165,250,0.03), transparent 60%);
+    background:
+      radial-gradient(circle at 14% 12%, rgba(122,60,255,0.16) 0%, transparent 24%),
+      radial-gradient(circle at 84% 10%, rgba(37,99,255,0.14) 0%, transparent 22%),
+      radial-gradient(circle at 50% 100%, rgba(255,106,0,0.10) 0%, transparent 28%),
+      var(--bg);
     background-attachment: fixed;
     min-height: 100vh;
   }
+  .hero-canvas {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 0;
+    pointer-events: none;
+    touch-action: none;
+    opacity: 0.75;
+  }
+  body > *:not(.hero-canvas) { position: relative; z-index: 1; }
   /* Subtle grain */
   body::before {
     content: '';
@@ -63,8 +84,8 @@
     position: sticky;
     top: 0;
     z-index: 100;
-    background: rgba(10, 11, 13, 0.85);
-    backdrop-filter: blur(12px);
+    background: rgba(8, 10, 18, 0.84);
+    backdrop-filter: blur(20px);
     border-bottom: 1px solid var(--line);
     padding: 10px 24px;
     display: flex;
@@ -84,9 +105,9 @@
   }
   .topbar .brand .dot {
     width: 8px; height: 8px;
-    background: var(--amber);
+    background: var(--ember);
     border-radius: 50%;
-    box-shadow: 0 0 12px var(--amber);
+    box-shadow: 0 0 12px var(--ember);
     animation: pulse 2s infinite;
   }
   .topbar .meta {
@@ -106,12 +127,36 @@
   }
   /* === HERO === */
   .hero {
-    padding: 100px 48px 80px;
+    padding: 120px 48px 90px;
     max-width: 1400px;
     margin: 0 auto;
     border-bottom: 1px solid var(--line);
     position: relative;
+    overflow: hidden;
   }
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 82% 62% at 50% 0%, rgba(255,106,0,0.13) 0%, transparent 68%),
+      radial-gradient(ellipse 56% 42% at 78% 18%, rgba(56,189,248,0.10) 0%, transparent 56%),
+      radial-gradient(ellipse 60% 44% at 84% 82%, rgba(122,60,255,0.13) 0%, transparent 62%),
+      radial-gradient(ellipse 42% 30% at 18% 66%, rgba(37,99,255,0.10) 0%, transparent 54%);
+    pointer-events: none;
+  }
+  .hero::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(122,60,255,0.050) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(37,99,255,0.035) 1px, transparent 1px);
+    background-size: 60px 60px;
+    pointer-events: none;
+    mask-image: radial-gradient(ellipse 100% 80% at 50% 50%, black 30%, transparent 100%);
+  }
+  .hero > * { position: relative; z-index: 2; }
   .hero .label {
     font-family: var(--mono);
     font-size: 11px;
@@ -129,7 +174,7 @@
     background: var(--amber);
   }
   .hero h1 {
-    font-family: var(--sans);
+    font-family: var(--display);
     font-size: clamp(44px, 6vw, 88px);
     line-height: 0.95;
     letter-spacing: -0.04em;
@@ -140,7 +185,10 @@
   .hero h1 em {
     font-family: var(--serif);
     font-weight: 400;
-    color: var(--amber);
+    background: linear-gradient(135deg, #ff8a1f 0%, var(--purple) 55%, var(--blue) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
     font-style: italic;
   }
   .hero .lede {
@@ -160,8 +208,9 @@
     margin-top: 48px;
   }
   .hero .file-meta > div {
-    background: var(--bg);
+    background: rgba(14, 19, 36, 0.78);
     padding: 16px 20px;
+    backdrop-filter: blur(14px);
   }
   .hero .file-meta .k {
     font-family: var(--mono);
@@ -196,6 +245,7 @@
     letter-spacing: 0.15em;
   }
   .section-head h2 {
+    font-family: var(--display);
     font-size: 38px;
     font-weight: 600;
     letter-spacing: -0.025em;
@@ -858,11 +908,13 @@
 </style>
 </head>
 <body>
+<canvas class="hero-canvas" aria-hidden="true"></canvas>
 <!-- TOP STATUS BAR -->
 <div class="topbar">
   <div class="brand">
     <span class="dot"></span>
-    EMBER // MISSION CONTROL
+    <img src="logo.svg?v=20260507" alt="Ember Bots" style="height:26px;width:auto;display:block;" />
+    <span>MISSION CONTROL</span>
   </div>
   <div class="meta">
     <span>STATUS:<b>CANONICAL</b></span>
@@ -1330,5 +1382,54 @@
     "If this loop works, the product is real."
   </div>
 </footer>
+
+<script>
+(() => {
+  const canvas = document.querySelector('.hero-canvas');
+  if (!canvas || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const ctx = canvas.getContext('2d');
+  let w, h, dpr, particles;
+  const colors = ['rgba(255,106,0,0.72)', 'rgba(122,60,255,0.52)', 'rgba(37,99,255,0.42)', 'rgba(255,184,77,0.48)'];
+  function resize() {
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    w = canvas.width = Math.floor(innerWidth * dpr);
+    h = canvas.height = Math.floor(innerHeight * dpr);
+    canvas.style.width = innerWidth + 'px';
+    canvas.style.height = innerHeight + 'px';
+    const count = Math.max(42, Math.min(96, Math.floor(innerWidth / 18)));
+    particles = Array.from({ length: count }, (_, i) => ({
+      x: Math.random() * w,
+      y: Math.random() * h,
+      r: (Math.random() * 1.8 + 0.45) * dpr,
+      vx: (Math.random() - 0.5) * 0.10 * dpr,
+      vy: (-0.06 - Math.random() * 0.16) * dpr,
+      c: colors[i % colors.length],
+      a: Math.random() * Math.PI * 2
+    }));
+  }
+  function frame() {
+    ctx.clearRect(0, 0, w, h);
+    ctx.globalCompositeOperation = 'lighter';
+    for (const p of particles) {
+      p.a += 0.012;
+      p.x += p.vx + Math.sin(p.a) * 0.035 * dpr;
+      p.y += p.vy;
+      if (p.y < -20) { p.y = h + 20; p.x = Math.random() * w; }
+      if (p.x < -20) p.x = w + 20;
+      if (p.x > w + 20) p.x = -20;
+      const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r * 7);
+      g.addColorStop(0, p.c);
+      g.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.fillStyle = g;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r * 7, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    requestAnimationFrame(frame);
+  }
+  addEventListener('resize', resize, { passive: true });
+  resize(); frame();
+})();
+</script>
 </body>
 </html>
