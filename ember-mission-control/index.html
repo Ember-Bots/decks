@@ -1,0 +1,1334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>EMBER // Mission Control — CRM + Agent Control Layer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Instrument+Serif:ital@0;1&family=Inter+Tight:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0b0d;
+    --bg-elev: #111316;
+    --bg-elev-2: #16191e;
+    --line: #20242b;
+    --line-bright: #2c323a;
+    --text: #e8eaed;
+    --text-dim: #8b919a;
+    --text-faint: #555b64;
+    --amber: #ffb547;
+    --amber-glow: rgba(255, 181, 71, 0.12);
+    --green: #4ade80;
+    --green-glow: rgba(74, 222, 128, 0.12);
+    --red: #ef4444;
+    --red-glow: rgba(239, 68, 68, 0.14);
+    --blue: #60a5fa;
+    --purple: #c084fc;
+    --mono: 'JetBrains Mono', ui-monospace, monospace;
+    --serif: 'Instrument Serif', Georgia, serif;
+    --sans: 'Inter Tight', -apple-system, sans-serif;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 14px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+  body {
+    background-image:
+      radial-gradient(ellipse at top left, rgba(255,181,71,0.04), transparent 60%),
+      radial-gradient(ellipse at bottom right, rgba(96,165,250,0.03), transparent 60%);
+    background-attachment: fixed;
+    min-height: 100vh;
+  }
+  /* Subtle grain */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.025;
+    z-index: 1000;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  .mono { font-family: var(--mono); }
+  .serif { font-family: var(--serif); font-style: italic; }
+  /* === TOP STATUS BAR === */
+  .topbar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(10, 11, 13, 0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--line);
+    padding: 10px 24px;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+  .topbar .brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 700;
+    color: var(--text);
+  }
+  .topbar .brand .dot {
+    width: 8px; height: 8px;
+    background: var(--amber);
+    border-radius: 50%;
+    box-shadow: 0 0 12px var(--amber);
+    animation: pulse 2s infinite;
+  }
+  .topbar .meta {
+    display: flex;
+    gap: 20px;
+    color: var(--text-dim);
+    margin-left: auto;
+  }
+  .topbar .meta span b {
+    color: var(--text);
+    font-weight: 500;
+    margin-left: 6px;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+  /* === HERO === */
+  .hero {
+    padding: 100px 48px 80px;
+    max-width: 1400px;
+    margin: 0 auto;
+    border-bottom: 1px solid var(--line);
+    position: relative;
+  }
+  .hero .label {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    color: var(--amber);
+    text-transform: uppercase;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .hero .label::before {
+    content: '';
+    width: 32px; height: 1px;
+    background: var(--amber);
+  }
+  .hero h1 {
+    font-family: var(--sans);
+    font-size: clamp(44px, 6vw, 88px);
+    line-height: 0.95;
+    letter-spacing: -0.04em;
+    font-weight: 600;
+    margin-bottom: 32px;
+    max-width: 1100px;
+  }
+  .hero h1 em {
+    font-family: var(--serif);
+    font-weight: 400;
+    color: var(--amber);
+    font-style: italic;
+  }
+  .hero .lede {
+    font-size: 19px;
+    line-height: 1.55;
+    color: var(--text-dim);
+    max-width: 720px;
+    margin-bottom: 48px;
+  }
+  .hero .lede b { color: var(--text); font-weight: 500; }
+  .hero .file-meta {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1px;
+    background: var(--line);
+    border: 1px solid var(--line);
+    margin-top: 48px;
+  }
+  .hero .file-meta > div {
+    background: var(--bg);
+    padding: 16px 20px;
+  }
+  .hero .file-meta .k {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+    margin-bottom: 6px;
+  }
+  .hero .file-meta .v {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--text);
+  }
+  /* === SECTION === */
+  section {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 80px 48px;
+    border-bottom: 1px solid var(--line);
+  }
+  .section-head {
+    display: flex;
+    align-items: baseline;
+    gap: 24px;
+    margin-bottom: 48px;
+  }
+  .section-head .num {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--amber);
+    letter-spacing: 0.15em;
+  }
+  .section-head h2 {
+    font-size: 38px;
+    font-weight: 600;
+    letter-spacing: -0.025em;
+    line-height: 1.1;
+  }
+  .section-head h2 em {
+    font-family: var(--serif);
+    font-weight: 400;
+    font-style: italic;
+    color: var(--amber);
+  }
+  .section-head .desc {
+    margin-left: auto;
+    max-width: 380px;
+    color: var(--text-dim);
+    font-size: 14px;
+    line-height: 1.55;
+    text-align: right;
+  }
+  /* === BIG IDEA QUOTE === */
+  .quote {
+    border-left: 2px solid var(--amber);
+    padding: 24px 32px;
+    background: linear-gradient(90deg, var(--amber-glow), transparent 40%);
+    font-family: var(--serif);
+    font-size: 28px;
+    line-height: 1.35;
+    color: var(--text);
+    margin: 32px 0;
+    max-width: 900px;
+  }
+  /* === MOAT CALLOUT === */
+  .moat-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-top: 32px;
+  }
+  .moat-card {
+    border: 1px solid var(--line);
+    padding: 28px;
+    position: relative;
+    background: var(--bg-elev);
+  }
+  .moat-card .tag {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+    margin-bottom: 16px;
+  }
+  .moat-card h3 {
+    font-size: 22px;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    margin-bottom: 14px;
+  }
+  .moat-card p { color: var(--text-dim); font-size: 14px; line-height: 1.6; }
+  .moat-card.is-moat {
+    border-color: var(--amber);
+    background: linear-gradient(180deg, var(--amber-glow), var(--bg-elev) 60%);
+  }
+  .moat-card.is-moat h3 { color: var(--amber); }
+  .moat-card.is-moat .tag { color: var(--amber); }
+  /* === ACTOR GRID === */
+  .actors {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1px;
+    background: var(--line);
+    border: 1px solid var(--line);
+  }
+  .actor {
+    background: var(--bg-elev);
+    padding: 28px;
+    transition: background 0.3s;
+    cursor: default;
+  }
+  .actor:hover { background: var(--bg-elev-2); }
+  .actor .icon {
+    width: 36px; height: 36px;
+    border: 1px solid var(--line-bright);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--amber);
+    background: var(--bg);
+  }
+  .actor h4 {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  .actor .role {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+    margin-bottom: 18px;
+  }
+  .actor ul { list-style: none; }
+  .actor ul li {
+    font-size: 13px;
+    color: var(--text-dim);
+    padding: 6px 0;
+    border-top: 1px dashed var(--line);
+    display: flex;
+    gap: 8px;
+  }
+  .actor ul li::before {
+    content: '→';
+    color: var(--text-faint);
+    flex-shrink: 0;
+  }
+  /* === LAYERS === */
+  .layers {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    background: var(--line);
+    border: 1px solid var(--line);
+  }
+  .layer {
+    background: var(--bg-elev);
+    padding: 28px 32px;
+    display: grid;
+    grid-template-columns: 80px 1fr 2fr 200px;
+    gap: 32px;
+    align-items: center;
+    transition: background 0.2s;
+  }
+  .layer:hover { background: var(--bg-elev-2); }
+  .layer .num {
+    font-family: var(--mono);
+    font-size: 32px;
+    color: var(--amber);
+    line-height: 1;
+    font-weight: 300;
+  }
+  .layer h4 {
+    font-size: 20px;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+  }
+  .layer p {
+    color: var(--text-dim);
+    font-size: 14px;
+    line-height: 1.55;
+  }
+  .layer .status {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+    text-align: right;
+  }
+  .layer .status .pill {
+    display: inline-block;
+    padding: 4px 8px;
+    border: 1px solid currentColor;
+    border-radius: 2px;
+  }
+  .layer .status.live .pill { color: var(--green); }
+  .layer .status.next .pill { color: var(--amber); }
+  .layer .status.future .pill { color: var(--text-faint); }
+  /* === ARCHITECTURE DIAGRAM === */
+  .arch {
+    background: var(--bg-elev);
+    border: 1px solid var(--line);
+    padding: 40px;
+    position: relative;
+    overflow: hidden;
+  }
+  .arch::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(var(--line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--line) 1px, transparent 1px);
+    background-size: 32px 32px;
+    opacity: 0.3;
+    pointer-events: none;
+  }
+  .arch-grid {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr 1.2fr 1fr;
+    gap: 32px;
+    z-index: 1;
+  }
+  .arch-col h5 {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--line);
+  }
+  .node {
+    background: var(--bg);
+    border: 1px solid var(--line-bright);
+    padding: 12px 14px;
+    margin-bottom: 8px;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.2s;
+    cursor: default;
+  }
+  .node:hover {
+    border-color: var(--amber);
+    background: var(--bg-elev-2);
+  }
+  .node .led {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--text-faint);
+  }
+  .node.center {
+    border-color: var(--amber);
+    background: linear-gradient(180deg, var(--amber-glow), var(--bg));
+  }
+  .node.center .led { background: var(--amber); box-shadow: 0 0 8px var(--amber); }
+  .node.human .led { background: var(--blue); }
+  .node.agent .led { background: var(--green); box-shadow: 0 0 6px var(--green); }
+  .node.external .led { background: var(--purple); }
+  .arch-divider {
+    text-align: center;
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-faint);
+    letter-spacing: 0.2em;
+    margin: 12px 0 8px;
+  }
+  .arch-flow {
+    margin-top: 32px;
+    padding-top: 24px;
+    border-top: 1px solid var(--line);
+    display: flex;
+    justify-content: space-around;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-dim);
+    position: relative;
+    z-index: 1;
+  }
+  .arch-flow span {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .arch-flow .arrow {
+    color: var(--amber);
+  }
+  /* === CONTROL LOOP === */
+  .loop {
+    display: grid;
+    grid-template-columns: repeat(9, 1fr);
+    gap: 0;
+    border: 1px solid var(--line);
+    background: var(--bg-elev);
+  }
+  .loop-step {
+    padding: 24px 16px;
+    border-right: 1px solid var(--line);
+    position: relative;
+  }
+  .loop-step:last-child { border-right: none; }
+  .loop-step .step-num {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--amber);
+    letter-spacing: 0.15em;
+    margin-bottom: 12px;
+  }
+  .loop-step h5 {
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    line-height: 1.25;
+  }
+  .loop-step p {
+    font-size: 11px;
+    color: var(--text-dim);
+    line-height: 1.45;
+    font-family: var(--mono);
+  }
+  .loop-step::after {
+    content: '→';
+    position: absolute;
+    right: -7px;
+    top: 28px;
+    color: var(--amber);
+    font-size: 14px;
+    background: var(--bg-elev);
+    padding: 0 2px;
+    z-index: 2;
+  }
+  .loop-step:last-child::after { content: '↻'; right: 16px; color: var(--green); font-size: 18px; }
+  .loop-step.risky { background: linear-gradient(180deg, var(--red-glow), transparent); }
+  /* === AUTHORITY GAUNTLET === */
+  .gauntlet {
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+    overflow-x: auto;
+    border: 1px solid var(--line);
+    background: var(--bg-elev);
+    padding: 32px 24px;
+  }
+  .gauntlet .gate {
+    flex: 1;
+    min-width: 140px;
+    border: 1px solid var(--line-bright);
+    background: var(--bg);
+    padding: 16px;
+    margin-right: 24px;
+    position: relative;
+    text-align: center;
+  }
+  .gauntlet .gate:last-child { margin-right: 0; }
+  .gauntlet .gate::after {
+    content: '▸';
+    position: absolute;
+    right: -16px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--amber);
+    font-size: 14px;
+  }
+  .gauntlet .gate:last-child::after { display: none; }
+  .gauntlet .gate .check {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-faint);
+    letter-spacing: 0.15em;
+    margin-bottom: 8px;
+  }
+  .gauntlet .gate h5 {
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+  .gauntlet .gate p {
+    font-size: 10px;
+    color: var(--text-dim);
+    font-family: var(--mono);
+    line-height: 1.4;
+  }
+  .gauntlet .gate.terminal {
+    border-color: var(--green);
+    background: linear-gradient(180deg, var(--green-glow), var(--bg));
+  }
+  .gauntlet .gate.terminal h5 { color: var(--green); }
+  .non-neg {
+    margin-top: 32px;
+    border: 1px dashed var(--red);
+    padding: 24px 28px;
+    background: linear-gradient(90deg, var(--red-glow), transparent 60%);
+  }
+  .non-neg h5 {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--red);
+    margin-bottom: 16px;
+  }
+  .non-neg ul {
+    columns: 2;
+    column-gap: 32px;
+    list-style: none;
+  }
+  .non-neg ul li {
+    padding: 4px 0;
+    font-size: 13px;
+    color: var(--text-dim);
+    break-inside: avoid;
+    display: flex;
+    gap: 8px;
+  }
+  .non-neg ul li::before {
+    content: '✕';
+    color: var(--red);
+    font-family: var(--mono);
+    flex-shrink: 0;
+  }
+  /* === DATA MODES === */
+  .modes {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
+  .mode {
+    border: 1px solid var(--line);
+    padding: 28px;
+    background: var(--bg-elev);
+    position: relative;
+  }
+  .mode .mode-tag {
+    position: absolute;
+    top: -10px; left: 24px;
+    background: var(--bg);
+    padding: 2px 12px;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--amber);
+    border: 1px solid var(--line);
+  }
+  .mode h4 {
+    font-size: 18px;
+    font-weight: 500;
+    margin-bottom: 12px;
+    margin-top: 8px;
+  }
+  .mode .recommended {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    color: var(--green);
+    margin-bottom: 12px;
+  }
+  .mode p { color: var(--text-dim); font-size: 13px; line-height: 1.55; }
+  .mode .order {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px dashed var(--line);
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-faint);
+  }
+  /* === BUILD SEQUENCE === */
+  .build {
+    border: 1px solid var(--line);
+    background: var(--bg-elev);
+    padding: 32px;
+  }
+  .wave {
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    gap: 32px;
+    padding: 20px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .wave:last-child { border-bottom: none; }
+  .wave .wave-head h5 {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--amber);
+    margin-bottom: 4px;
+  }
+  .wave .wave-head .when {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-faint);
+  }
+  .wave .items {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px 16px;
+  }
+  .wave .item {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    font-size: 13px;
+    color: var(--text);
+  }
+  .wave .item .check {
+    width: 14px; height: 14px;
+    border: 1px solid var(--line-bright);
+    flex-shrink: 0;
+    position: relative;
+  }
+  .wave .item.done .check {
+    background: var(--green);
+    border-color: var(--green);
+  }
+  .wave .item.done .check::after {
+    content: '✓';
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--bg);
+    font-size: 10px;
+    font-weight: 700;
+  }
+  .wave .item.active .check {
+    border-color: var(--amber);
+    background: var(--amber-glow);
+    animation: pulse 2s infinite;
+  }
+  .wave .item.future { color: var(--text-dim); }
+  /* === NORTH STAR === */
+  .north-star {
+    background:
+      radial-gradient(ellipse at center, var(--amber-glow), transparent 70%),
+      var(--bg-elev);
+    border: 1px solid var(--amber);
+    padding: 56px 48px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .north-star::before {
+    content: '★';
+    position: absolute;
+    top: 24px; right: 32px;
+    font-size: 24px;
+    color: var(--amber);
+    opacity: 0.4;
+  }
+  .north-star .label {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.3em;
+    color: var(--amber);
+    margin-bottom: 24px;
+  }
+  .north-star blockquote {
+    font-family: var(--serif);
+    font-size: clamp(22px, 2.5vw, 32px);
+    line-height: 1.4;
+    color: var(--text);
+    max-width: 1000px;
+    margin: 0 auto 40px;
+  }
+  .north-star .pipeline {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 4px;
+    flex-wrap: wrap;
+    font-family: var(--mono);
+    font-size: 11px;
+  }
+  .north-star .pipeline .stage {
+    padding: 8px 14px;
+    border: 1px solid var(--line-bright);
+    background: var(--bg);
+    color: var(--text);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+  .north-star .pipeline .arr {
+    color: var(--amber);
+    font-size: 14px;
+  }
+  .north-star .stamp {
+    margin-top: 32px;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+  .north-star .stamp em {
+    font-family: var(--serif);
+    font-style: italic;
+    color: var(--amber);
+    text-transform: none;
+    font-size: 14px;
+    letter-spacing: 0;
+  }
+  /* === PRINCIPLES === */
+  .principles {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1px;
+    background: var(--line);
+    border: 1px solid var(--line);
+  }
+  .principle {
+    background: var(--bg-elev);
+    padding: 20px 24px;
+    display: flex;
+    gap: 18px;
+    align-items: flex-start;
+    transition: background 0.2s;
+  }
+  .principle:hover { background: var(--bg-elev-2); }
+  .principle .pn {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--amber);
+    flex-shrink: 0;
+    margin-top: 2px;
+    letter-spacing: 0.05em;
+  }
+  .principle p {
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--text);
+  }
+  .principle p b { color: var(--amber); font-weight: 500; }
+  /* === FOOTER === */
+  footer {
+    padding: 64px 48px 80px;
+    max-width: 1400px;
+    margin: 0 auto;
+    text-align: center;
+    color: var(--text-faint);
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+  footer .div {
+    width: 60px; height: 1px;
+    background: var(--line-bright);
+    margin: 0 auto 24px;
+  }
+  /* responsive */
+  @media (max-width: 900px) {
+    .topbar {
+      align-items: flex-start;
+      flex-direction: column;
+      gap: 8px;
+      padding: 12px 16px;
+    }
+    .topbar .meta {
+      width: 100%;
+      margin-left: 0;
+      flex-wrap: wrap;
+      gap: 8px 14px;
+    }
+    .hero { padding: 60px 24px 48px; }
+    section { padding: 56px 24px; }
+    .hero .file-meta { grid-template-columns: 1fr 1fr; }
+    .actors { grid-template-columns: 1fr 1fr; }
+    .moat-grid, .modes, .principles { grid-template-columns: 1fr; }
+    .layer { grid-template-columns: 1fr; gap: 12px; }
+    .layer .status { text-align: left; }
+    .arch-grid { grid-template-columns: 1fr; }
+    .loop { grid-template-columns: repeat(3, 1fr); }
+    .loop-step::after { display: none; }
+    .non-neg ul { columns: 1; }
+    .wave { grid-template-columns: 1fr; }
+    .wave .items { grid-template-columns: 1fr; }
+    .section-head { flex-direction: column; gap: 8px; }
+    .section-head .desc { text-align: left; margin-left: 0; }
+  }
+</style>
+</head>
+<body>
+<!-- TOP STATUS BAR -->
+<div class="topbar">
+  <div class="brand">
+    <span class="dot"></span>
+    EMBER // MISSION CONTROL
+  </div>
+  <div class="meta">
+    <span>STATUS:<b>CANONICAL</b></span>
+    <span>OWNER:<b>EMBER</b></span>
+    <span>REV:<b>2026.05.07</b></span>
+    <span>CLASS:<b>VISION</b></span>
+  </div>
+</div>
+<!-- HERO -->
+<header class="hero">
+  <div class="label">CRM + Agent Control Layer · Vision Document</div>
+  <h1>
+    Not a CRM with agents <em>bolted on.</em><br/>
+    A managed agent <em>operations platform.</em>
+  </h1>
+  <p class="lede">
+    Ember CRM becomes the <b>Mission Control system</b> where humans supervise outcomes
+    and decisions while agents execute bounded work, report evidence, request approval,
+    and continuously improve through <b>managed calibration</b> — the moat.
+  </p>
+  <div class="file-meta">
+    <div><div class="k">Status</div><div class="v">canonical_visual_draft</div></div>
+    <div><div class="k">Owner</div><div class="v">ember</div></div>
+    <div><div class="k">Date</div><div class="v">2026-05-07</div></div>
+    <div><div class="k">Audience</div><div class="v">evan, ember, flint, claude, gemini</div></div>
+  </div>
+</header>
+<!-- §1 BIG IDEA -->
+<section>
+  <div class="section-head">
+    <span class="num">§01</span>
+    <h2>The <em>Big Idea</em></h2>
+    <p class="desc">Ember CRM should not become a traditional human-first CRM with agents bolted on. It should become the durable place where Ember Bots can see, supervise, and improve every customer agent.</p>
+  </div>
+  <blockquote class="quote">
+    Customer agents are not just installed. They are bounded, monitored,
+    reviewed, improved, and managed. The CRM is the system that makes that true.
+  </blockquote>
+  <div class="moat-grid">
+    <div class="moat-card">
+      <div class="tag">Table Stakes</div>
+      <h3>Agent Control Plane</h3>
+      <p>Identity, scope, telemetry, work items, evidence, approvals. Important — but every serious player will have this within 18 months. It will not differentiate.</p>
+    </div>
+    <div class="moat-card is-moat">
+      <div class="tag">★ Moat</div>
+      <h3>Managed Calibration</h3>
+      <p>Turning real customer-agent interactions into structured findings — then into context, policy, runbook, entitlement, workflow, and product improvements. With evidence, approval, and auditability.</p>
+    </div>
+  </div>
+</section>
+<!-- §2 ACTORS -->
+<section>
+  <div class="section-head">
+    <span class="num">§02</span>
+    <h2>What humans see · what agents <em>do</em></h2>
+    <p class="desc">Center of gravity flips. Agents are primary operators. Humans become supervisors and decision-makers.</p>
+  </div>
+  <div class="actors">
+    <div class="actor">
+      <div class="icon">H</div>
+      <h4>Humans</h4>
+      <div class="role">Supervise · Decide</div>
+      <ul>
+        <li>Which agents exist & their health</li>
+        <li>What changed since last check</li>
+        <li>What needs approval</li>
+        <li>Where quality is slipping</li>
+        <li>Whether customer is getting value</li>
+      </ul>
+    </div>
+    <div class="actor">
+      <div class="icon">A</div>
+      <h4>Customer Agents</h4>
+      <div class="role">Execute · Report</div>
+      <ul>
+        <li>Heartbeat health & telemetry</li>
+        <li>Claim or create scoped work</li>
+        <li>Attach evidence artifacts</li>
+        <li>Request approval for risky acts</li>
+        <li>Stay inside scope · default-deny</li>
+      </ul>
+    </div>
+    <div class="actor">
+      <div class="icon">E</div>
+      <h4>Ember</h4>
+      <div class="role">Accountable Operator</div>
+      <ul>
+        <li>Build & maintain the platform</li>
+        <li>Review work, incidents, gates</li>
+        <li>Convert learnings into improvements</li>
+        <li>Escalate only when needed</li>
+      </ul>
+    </div>
+    <div class="actor">
+      <div class="icon">F</div>
+      <h4>Flint</h4>
+      <div class="role">QA · Pit Boss</div>
+      <ul>
+        <li>Review sanitized findings</li>
+        <li>Propose improvements</li>
+        <li>No direct production mutation</li>
+        <li>Unless explicitly approved</li>
+      </ul>
+    </div>
+  </div>
+</section>
+<!-- §3 FIVE LAYERS -->
+<section>
+  <div class="section-head">
+    <span class="num">§03</span>
+    <h2>The five <em>operational layers</em></h2>
+    <p class="desc">Not a dashboard. A structured operating substrate.</p>
+  </div>
+  <div class="layers">
+    <div class="layer">
+      <div class="num">01</div>
+      <div><h4>Safety + Authority</h4></div>
+      <p>Who/what is allowed to do what, under which scope, with which approval requirements. Default-deny. Explicit. Testable.</p>
+      <div class="status live"><span class="pill">● FOUNDATION</span></div>
+    </div>
+    <div class="layer">
+      <div class="num">02</div>
+      <div><h4>Work + Evidence</h4></div>
+      <p>What agents are doing, what happened, what artifacts prove it. Every meaningful write produces an audit event.</p>
+      <div class="status live"><span class="pill">● FOUNDATION</span></div>
+    </div>
+    <div class="layer">
+      <div class="num">03</div>
+      <div><h4>Decision + Approval</h4></div>
+      <p>Where humans approve, deny, correct, or pause risky actions. Batched and risk-tiered, not constant manual babysitting.</p>
+      <div class="status next"><span class="pill">○ HARDENING</span></div>
+    </div>
+    <div class="layer">
+      <div class="num">04</div>
+      <div><h4>Managed Calibration</h4></div>
+      <p>Where real interactions turn into QA findings and durable improvements. <strong style="color:var(--amber)">This is the moat.</strong></p>
+      <div class="status next"><span class="pill">○ NEXT WAVE</span></div>
+    </div>
+    <div class="layer">
+      <div class="num">05</div>
+      <div><h4>Business Value</h4></div>
+      <p>Where the platform proves outcomes — missed revenue snapshots, lead recovery, reviews, response quality, follow-up quality.</p>
+      <div class="status future"><span class="pill">○ DEMO TARGET</span></div>
+    </div>
+  </div>
+</section>
+<!-- §4 ARCHITECTURE -->
+<section>
+  <div class="section-head">
+    <span class="num">§04</span>
+    <h2>High-level <em>architecture</em></h2>
+    <p class="desc">Ember CRM sits between the human command layer, the agentic operators, customer agents, and external systems.</p>
+  </div>
+  <div class="arch">
+    <div class="arch-grid">
+      <!-- LEFT: Inputs -->
+      <div class="arch-col">
+        <h5>Human Command Layer</h5>
+        <div class="node human"><span class="led"></span>Evan / Executive</div>
+        <div class="node human"><span class="led"></span>Amber / Ops</div>
+        <div class="node human"><span class="led"></span>Steve / Customer-Side</div>
+        <div class="node human"><span class="led"></span>Customer Stakeholders</div>
+        <div class="arch-divider">— OPERATORS —</div>
+        <div class="node"><span class="led" style="background:var(--amber);box-shadow:0 0 6px var(--amber)"></span>Ember · Accountable</div>
+        <div class="node"><span class="led" style="background:var(--purple)"></span>Flint · QA / Reviewer</div>
+        <div class="arch-divider">— CUSTOMER AGENTS —</div>
+        <div class="node agent"><span class="led"></span>Blaze</div>
+        <div class="node agent"><span class="led"></span>Gloria</div>
+        <div class="node agent"><span class="led"></span>Jarvis</div>
+        <div class="node agent"><span class="led"></span>Future agents…</div>
+      </div>
+      <!-- CENTER: CRM -->
+      <div class="arch-col">
+        <h5>Ember CRM · Managed Agent Ops Platform</h5>
+        <div class="node center"><span class="led"></span>Agent Command Center</div>
+        <div class="node center"><span class="led"></span>Authority + Entitlements</div>
+        <div class="node center"><span class="led"></span>Work Items + Runs</div>
+        <div class="node center"><span class="led"></span>Evidence Artifacts</div>
+        <div class="node center"><span class="led"></span>Decision Gates + Approvals</div>
+        <div class="node center"><span class="led"></span>Audit Events</div>
+        <div class="node center"><span class="led"></span>Context Packs + Runbooks</div>
+        <div class="node center"><span class="led"></span>Interaction Reviews + Findings</div>
+        <div class="node center"><span class="led"></span>Environment Health + Telemetry</div>
+        <div class="node center"><span class="led"></span>Business Value Surfaces</div>
+      </div>
+      <!-- RIGHT: External -->
+      <div class="arch-col">
+        <h5>External Systems</h5>
+        <div class="node external"><span class="led"></span>Customer CRM · Jobber · ServiceTitan</div>
+        <div class="node external"><span class="led"></span>Discord · SMS · Email · Phone</div>
+        <div class="node external"><span class="led"></span>Website · Forms · Landing Pages</div>
+        <div class="node external"><span class="led"></span>Vapi · Phone Agents</div>
+        <div class="node external"><span class="led"></span>Model Providers · GPTs</div>
+        <div class="arch-divider">— DATA POSTURE —</div>
+        <div class="node"><span class="led"></span>Mode A · Monitor-only</div>
+        <div class="node"><span class="led"></span>Mode B · Overlay + refs</div>
+        <div class="node"><span class="led"></span>Mode C · System of record</div>
+      </div>
+    </div>
+    <div class="arch-flow">
+      <span><span class="arrow">→</span> Humans observe & approve</span>
+      <span><span class="arrow">→</span> Agents emit work + evidence</span>
+      <span><span class="arrow">→</span> CRM enforces authority</span>
+      <span><span class="arrow">↻</span> QA closes the loop</span>
+    </div>
+  </div>
+</section>
+<!-- §5 CONTROL LOOP -->
+<section>
+  <div class="section-head">
+    <span class="num">§05</span>
+    <h2>The agent <em>control loop</em></h2>
+    <p class="desc">The single most important loop in the whole system. From check-in to durable improvement.</p>
+  </div>
+  <div class="loop">
+    <div class="loop-step">
+      <div class="step-num">01</div>
+      <h5>Check in</h5>
+      <p>Agent emits heartbeat / telemetry</p>
+    </div>
+    <div class="loop-step">
+      <div class="step-num">02</div>
+      <h5>Verify scope</h5>
+      <p>CRM validates token + tenant scope</p>
+    </div>
+    <div class="loop-step">
+      <div class="step-num">03</div>
+      <h5>Claim work</h5>
+      <p>Bounded WorkItem + lease assigned</p>
+    </div>
+    <div class="loop-step">
+      <div class="step-num">04</div>
+      <h5>Run + evidence</h5>
+      <p>Execute, attach artifacts</p>
+    </div>
+    <div class="loop-step">
+      <div class="step-num">05</div>
+      <h5>Safe? Complete</h5>
+      <p>Update status · queue review</p>
+    </div>
+    <div class="loop-step risky">
+      <div class="step-num">06</div>
+      <h5>Risky? Gate</h5>
+      <p>DecisionGate → Command Center</p>
+    </div>
+    <div class="loop-step">
+      <div class="step-num">07</div>
+      <h5>Human decides</h5>
+      <p>Approve · deny · revise · pause</p>
+    </div>
+    <div class="loop-step">
+      <div class="step-num">08</div>
+      <h5>QA reviews</h5>
+      <p>Findings · root cause · severity</p>
+    </div>
+    <div class="loop-step">
+      <div class="step-num">09</div>
+      <h5>Improve</h5>
+      <p>Context · policy · runbook · authority</p>
+    </div>
+  </div>
+</section>
+<!-- §6 AUTHORITY GAUNTLET -->
+<section>
+  <div class="section-head">
+    <span class="num">§06</span>
+    <h2>The authority <em>gauntlet</em></h2>
+    <p class="desc">Every incoming agent request runs this gauntlet. Default-deny. No broad authority. Approval-required actions cannot be performed directly.</p>
+  </div>
+  <div class="gauntlet">
+    <div class="gate">
+      <div class="check">CHECK 1</div>
+      <h5>Token</h5>
+      <p>validate machine token</p>
+    </div>
+    <div class="gate">
+      <div class="check">CHECK 2</div>
+      <h5>Scope</h5>
+      <p>tenant + account + workspace + env</p>
+    </div>
+    <div class="gate">
+      <div class="check">CHECK 3</div>
+      <h5>Manifest</h5>
+      <p>active entitlement stack</p>
+    </div>
+    <div class="gate">
+      <div class="check">CHECK 4</div>
+      <h5>Capability</h5>
+      <p>capability matrix</p>
+    </div>
+    <div class="gate">
+      <div class="check">CHECK 5</div>
+      <h5>Data Policy</h5>
+      <p>object-class policy</p>
+    </div>
+    <div class="gate">
+      <div class="check">CHECK 6</div>
+      <h5>Idempotency</h5>
+      <p>concurrency / staleness</p>
+    </div>
+    <div class="gate">
+      <div class="check">CHECK 7</div>
+      <h5>Risk Tier</h5>
+      <p>approval required?</p>
+    </div>
+    <div class="gate terminal">
+      <div class="check">↓ AUDIT</div>
+      <h5>Allow</h5>
+      <p>action recorded</p>
+    </div>
+  </div>
+  <div class="non-neg">
+    <h5>Non-negotiables</h5>
+    <ul>
+      <li>No default allow</li>
+      <li>No broad customer-agent authority</li>
+      <li>Account-only matches don't authorize scoped writes when both dimensions exist</li>
+      <li>Every meaningful write needs audit</li>
+      <li>Required creates need idempotency keys</li>
+      <li>Mutable transitions need concurrency protection</li>
+      <li>Approval-required actions cannot be performed directly</li>
+      <li>Production tokens / authority changes require explicit approval</li>
+    </ul>
+  </div>
+</section>
+<!-- §7 DATA MODES -->
+<section>
+  <div class="section-head">
+    <span class="num">§07</span>
+    <h2>Three customer <em>data postures</em></h2>
+    <p class="desc">Build A first. Add B where useful. Use C only when customer lacks a useful CRM and tenant isolation is fully ready.</p>
+  </div>
+  <div class="modes">
+    <div class="mode">
+      <span class="mode-tag">MODE A</span>
+      <h4>Monitor-only Control Layer</h4>
+      <div class="recommended">▸ BUILD FIRST · PROVE FIRST</div>
+      <p>CRM stores health, work, evidence, approvals, QA, context. Customer CRM remains system of record. Lowest risk, highest leverage.</p>
+      <div class="order">// order: 1 of 3</div>
+    </div>
+    <div class="mode">
+      <span class="mode-tag">MODE B</span>
+      <h4>Overlay + External References</h4>
+      <p>CRM stores operational state. References external records by system/id. Tracks freshness, staleness, drift. Useful where customer already has CRM.</p>
+      <div class="order">// order: 2 of 3</div>
+    </div>
+    <div class="mode">
+      <span class="mode-tag">MODE C</span>
+      <h4>System of Record</h4>
+      <p>CRM stores customer operational records directly. Requires strict tenant isolation and explicit approval. Last, not first.</p>
+      <div class="order">// order: 3 of 3</div>
+    </div>
+  </div>
+</section>
+<!-- §8 BUILD SEQUENCE -->
+<section>
+  <div class="section-head">
+    <span class="num">§08</span>
+    <h2>Build <em>sequence</em></h2>
+    <p class="desc">Substrate → local-only → value demo → production gate. No production migration without explicit approval.</p>
+  </div>
+  <div class="build">
+    <div class="wave">
+      <div class="wave-head">
+        <h5>Wave 1 · Substrate</h5>
+        <div class="when">2026-05-07 · landed</div>
+      </div>
+      <div class="items">
+        <div class="item done"><div class="check"></div>Capability matrix + done checks</div>
+        <div class="item done"><div class="check"></div>Idempotency / concurrency spec</div>
+        <div class="item done"><div class="check"></div>Entitlement resolution spec</div>
+        <div class="item done"><div class="check"></div>Sanitization skeleton + tests</div>
+      </div>
+    </div>
+    <div class="wave">
+      <div class="wave-head">
+        <h5>Wave 2 · Local-only</h5>
+        <div class="when">in flight</div>
+      </div>
+      <div class="items">
+        <div class="item active"><div class="check"></div>QA lane objects</div>
+        <div class="item future"><div class="check"></div>Mission Control scoped write path</div>
+        <div class="item future"><div class="check"></div>External references / data policy</div>
+        <div class="item future"><div class="check"></div>Per-object-class data policies</div>
+      </div>
+    </div>
+    <div class="wave">
+      <div class="wave-head">
+        <h5>Wave 3 · Value Demo</h5>
+        <div class="when">queued</div>
+      </div>
+      <div class="items">
+        <div class="item future"><div class="check"></div>Missed Revenue Snapshot v0</div>
+        <div class="item future"><div class="check"></div>Approval packet</div>
+        <div class="item future"><div class="check"></div>Kill-switch / circuit breaker UX</div>
+      </div>
+    </div>
+    <div class="wave">
+      <div class="wave-head">
+        <h5>Wave 4 · Production Gate</h5>
+        <div class="when">explicit approval required</div>
+      </div>
+      <div class="items">
+        <div class="item future"><div class="check"></div>Flint review</div>
+        <div class="item future"><div class="check"></div>Evan approval</div>
+        <div class="item future"><div class="check"></div>Production migration / deploy</div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- §9 NORTH STAR DEMO -->
+<section>
+  <div class="section-head">
+    <span class="num">§09</span>
+    <h2>The <em>north-star demo</em></h2>
+    <p class="desc">Not an admin panel. The first demo proves the entire platform in one loop.</p>
+  </div>
+  <div class="north-star">
+    <div class="label">★ THE PROOF</div>
+    <blockquote>
+      Blaze finds missed revenue signals, creates a Missed Revenue Snapshot draft,
+      attaches evidence, requests approval for customer-facing use, receives QA
+      feedback — and the system turns that feedback into better context, policy,
+      and workflow for the next run.
+    </blockquote>
+    <div class="pipeline">
+      <span class="stage">Signal</span><span class="arr">▸</span>
+      <span class="stage">WorkItem</span><span class="arr">▸</span>
+      <span class="stage">Run</span><span class="arr">▸</span>
+      <span class="stage">Evidence</span><span class="arr">▸</span>
+      <span class="stage">Draft</span><span class="arr">▸</span>
+      <span class="stage">Approval</span><span class="arr">▸</span>
+      <span class="stage">Value</span><span class="arr">▸</span>
+      <span class="stage">QA</span><span class="arr">▸</span>
+      <span class="stage">Improve</span><span class="arr">↻</span>
+    </div>
+    <div class="stamp">If this loop works · <em>the product is real.</em></div>
+  </div>
+</section>
+<!-- §10 PRINCIPLES -->
+<section>
+  <div class="section-head">
+    <span class="num">§10</span>
+    <h2>Design <em>principles</em></h2>
+    <p class="desc">The non-obvious commitments. The ones we hold when pressure mounts.</p>
+  </div>
+  <div class="principles">
+    <div class="principle"><div class="pn">01</div><p><b>Agents are primary operators.</b> Humans are supervisors and decision-makers, not data-entry clerks.</p></div>
+    <div class="principle"><div class="pn">02</div><p><b>Operational truth, not vanity dashboards.</b> Show what the system actually did.</p></div>
+    <div class="principle"><div class="pn">03</div><p><b>Every action: scope, authority, evidence, audit.</b> Non-negotiable.</p></div>
+    <div class="principle"><div class="pn">04</div><p><b>Approvals are batched and risk-tiered.</b> No constant manual babysitting.</p></div>
+    <div class="principle"><div class="pn">05</div><p><b>Data posture is explicit.</b> Monitor-only, overlay, or system-of-record. Pick deliberately.</p></div>
+    <div class="principle"><div class="pn">06</div><p><b>Build for Blaze first.</b> Generalize second. Don't pre-abstract.</p></div>
+    <div class="principle"><div class="pn">07</div><p><b>Managed calibration is the moat.</b> Everything else is table stakes.</p></div>
+    <div class="principle"><div class="pn">08</div><p><b>No production authority expansion without explicit approval.</b> Ever.</p></div>
+    <div class="principle"><div class="pn">09</div><p><b>No secrets in Git, memory, docs, fixtures, or logs.</b> Anywhere.</p></div>
+    <div class="principle"><div class="pn">10</div><p><b>Beautiful UI is secondary</b> to making the operational loop trustworthy.</p></div>
+  </div>
+</section>
+<footer>
+  <div class="div"></div>
+  <div>END OF DOCUMENT · CANONICAL VISUAL DRAFT · 2026-05-07</div>
+  <div style="margin-top:8px;color:var(--text-faint);text-transform:none;letter-spacing:0;font-family:var(--serif);font-style:italic;font-size:14px;">
+    "If this loop works, the product is real."
+  </div>
+</footer>
+</body>
+</html>

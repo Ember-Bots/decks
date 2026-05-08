@@ -1,1 +1,6 @@
-# Decks\n\nPresentation decks for Ember Bots AI.\n\n- [Rev.io AI-Native Vision Deck](./revio-vision/)
+# Decks
+
+Presentation decks for Ember Bots AI.
+
+- [Ember Mission Control](./ember-mission-control/)
+- [Rev.io AI-Native Vision Deck](./revio-vision/)

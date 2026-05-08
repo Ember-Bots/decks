@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ember Bots Decks</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0b0d10;
+      --panel: #12161b;
+      --panel-2: #161b21;
+      --line: #252c35;
+      --text: #eef2f6;
+      --muted: #a2abb6;
+      --faint: #6f7884;
+      --amber: #ffb547;
+      --cyan: #36c7d6;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 20% 0%, rgba(255, 181, 71, 0.08), transparent 28rem),
+        radial-gradient(circle at 85% 15%, rgba(54, 199, 214, 0.08), transparent 32rem),
+        linear-gradient(180deg, #0b0d10 0%, #08090b 100%);
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.5;
+    }
+
+    main {
+      width: min(1120px, calc(100% - 40px));
+      margin: 0 auto;
+      padding: 72px 0;
+    }
+
+    .eyebrow {
+      margin: 0 0 14px;
+      color: var(--amber);
+      font: 700 12px/1 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0;
+      max-width: 760px;
+      font-size: clamp(42px, 7vw, 82px);
+      line-height: 0.95;
+      letter-spacing: -0.045em;
+    }
+
+    .lede {
+      max-width: 680px;
+      margin: 24px 0 48px;
+      color: var(--muted);
+      font-size: 18px;
+    }
+
+    .deck-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .deck-card {
+      display: block;
+      min-height: 250px;
+      padding: 28px;
+      border: 1px solid var(--line);
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0.015)), var(--panel);
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .deck-card:hover {
+      border-color: color-mix(in srgb, var(--accent), var(--line) 36%);
+      background-color: var(--panel-2);
+    }
+
+    .deck-card .meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 50px;
+      color: var(--faint);
+      font: 700 11px/1 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+    }
+
+    .deck-card .dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 16px color-mix(in srgb, var(--accent), transparent 35%);
+    }
+
+    .deck-card h2 {
+      margin: 0 0 12px;
+      font-size: clamp(26px, 4vw, 38px);
+      line-height: 1;
+      letter-spacing: -0.03em;
+    }
+
+    .deck-card p {
+      margin: 0;
+      color: var(--muted);
+      max-width: 34rem;
+    }
+
+    .ember { --accent: var(--amber); }
+    .revio { --accent: var(--cyan); }
+
+    @media (max-width: 760px) {
+      main { width: min(100% - 28px, 1120px); padding: 48px 0; }
+      .deck-grid { grid-template-columns: 1fr; }
+      .deck-card { min-height: 220px; padding: 22px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <p class="eyebrow">Ember Bots AI</p>
+    <h1>Presentation decks</h1>
+    <p class="lede">Published GitHub Pages decks for strategy, product vision, and implementation narratives.</p>
+
+    <div class="deck-grid" aria-label="Available presentations">
+      <a class="deck-card ember" href="./ember-mission-control/">
+        <div class="meta"><span>Vision Document</span><span class="dot"></span></div>
+        <h2>Ember Mission Control</h2>
+        <p>CRM plus agent control layer for managed agent operations, authority, evidence, approvals, calibration, and business value.</p>
+      </a>
+
+      <a class="deck-card revio" href="./revio-vision/">
+        <div class="meta"><span>Published Deck</span><span class="dot"></span></div>
+        <h2>Rev.io AI-Native Vision</h2>
+        <p>The AI-native operating system vision for service providers, CommerceHub, AgentHub, and Revii AI.</p>
+      </a>
+    </div>
+  </main>
+</body>
+</html>
