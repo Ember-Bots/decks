@@ -919,7 +919,7 @@
   <div class="meta">
     <span>STATUS:<b>CANONICAL</b></span>
     <span>OWNER:<b>EMBER</b></span>
-    <span>REV:<b>2026.05.07</b></span>
+    <span>REV:<b>2026.05.07.2225</b></span>
     <span>CLASS:<b>VISION</b></span>
   </div>
 </div>
@@ -931,9 +931,10 @@
     A managed agent <em>operations platform.</em>
   </h1>
   <p class="lede">
-    Ember CRM becomes the <b>Mission Control system</b> where humans supervise outcomes
-    and decisions while agents execute bounded work, report evidence, request approval,
-    and continuously improve through <b>managed calibration</b> — the moat.
+    Ember CRM becomes the <b>agent operating substrate</b>: agents are the primary CRM users,
+    and the agents themselves become the <b>human UI</b>. Humans supervise outcomes and decisions
+    mostly through agent conversations, while agents execute bounded work, report evidence,
+    request approval, and continuously improve through <b>managed calibration</b> — the moat.
   </p>
   <div class="file-meta">
     <div><div class="k">Status</div><div class="v">canonical_visual_draft</div></div>
@@ -947,11 +948,12 @@
   <div class="section-head">
     <span class="num">§01</span>
     <h2>The <em>Big Idea</em></h2>
-    <p class="desc">Ember CRM should not become a traditional human-first CRM with agents bolted on. It should become the durable place where Ember Bots can see, supervise, and improve every customer agent.</p>
+    <p class="desc">Ember CRM should not become a traditional human-first CRM with agents bolted on. It should become the durable operating layer agents use almost exclusively, while humans interact with the business through those agents as the UI.</p>
   </div>
   <blockquote class="quote">
     Customer agents are not just installed. They are bounded, monitored,
-    reviewed, improved, and managed. The CRM is the system that makes that true.
+    reviewed, improved, and managed. The CRM is the system that makes that true —
+    but the agent is the surface humans actually use.
   </blockquote>
   <div class="moat-grid">
     <div class="moat-card">
@@ -971,15 +973,16 @@
   <div class="section-head">
     <span class="num">§02</span>
     <h2>What humans see · what agents <em>do</em></h2>
-    <p class="desc">Center of gravity flips. Agents are primary operators. Humans become supervisors and decision-makers.</p>
+    <p class="desc">Center of gravity flips. Agents are the primary CRM users and operators. Humans become supervisors and decision-makers, using agents as the interface instead of living in CRM screens.</p>
   </div>
   <div class="actors">
     <div class="actor">
       <div class="icon">H</div>
       <h4>Humans</h4>
-      <div class="role">Supervise · Decide</div>
+      <div class="role">Use Agents as UI · Supervise · Decide</div>
       <ul>
         <li>Which agents exist & their health</li>
+        <li>Agent-delivered briefings instead of CRM data entry</li>
         <li>What changed since last check</li>
         <li>What needs approval</li>
         <li>Where quality is slipping</li>
@@ -989,8 +992,9 @@
     <div class="actor">
       <div class="icon">A</div>
       <h4>Customer Agents</h4>
-      <div class="role">Execute · Report</div>
+      <div class="role">Primary CRM Users · Execute · Report</div>
       <ul>
+        <li>Read/write CRM as the operating substrate</li>
         <li>Heartbeat health & telemetry</li>
         <li>Claim or create scoped work</li>
         <li>Attach evidence artifacts</li>
@@ -1027,7 +1031,7 @@
   <div class="section-head">
     <span class="num">§03</span>
     <h2>The five <em>operational layers</em></h2>
-    <p class="desc">Not a dashboard. A structured operating substrate.</p>
+    <p class="desc">Not a dashboard for humans to babysit. A structured operating substrate for agents to run the business loop.</p>
   </div>
   <div class="layers">
     <div class="layer">
@@ -1045,7 +1049,7 @@
     <div class="layer">
       <div class="num">03</div>
       <div><h4>Decision + Approval</h4></div>
-      <p>Where humans approve, deny, correct, or pause risky actions. Batched and risk-tiered, not constant manual babysitting.</p>
+      <p>Where agents present risky decisions for humans to approve, deny, correct, or pause. Batched and risk-tiered, not constant manual babysitting.</p>
       <div class="status next"><span class="pill">○ HARDENING</span></div>
     </div>
     <div class="layer">
@@ -1067,13 +1071,13 @@
   <div class="section-head">
     <span class="num">§04</span>
     <h2>High-level <em>architecture</em></h2>
-    <p class="desc">Ember CRM sits between the human command layer, the agentic operators, customer agents, and external systems.</p>
+    <p class="desc">Ember CRM sits underneath the agent layer as shared operational truth. Agents are the primary readers/writers; humans steer through the agents, with CRM screens reserved for inspection, governance, and audit.</p>
   </div>
   <div class="arch">
     <div class="arch-grid">
       <!-- LEFT: Inputs -->
       <div class="arch-col">
-        <h5>Human Command Layer</h5>
+        <h5>Human Layer · Agent UI First</h5>
         <div class="node human"><span class="led"></span>Evan / Executive</div>
         <div class="node human"><span class="led"></span>Amber / Ops</div>
         <div class="node human"><span class="led"></span>Steve / Customer-Side</div>
@@ -1089,7 +1093,7 @@
       </div>
       <!-- CENTER: CRM -->
       <div class="arch-col">
-        <h5>Ember CRM · Managed Agent Ops Platform</h5>
+        <h5>Ember CRM · Agent Operating Substrate</h5>
         <div class="node center"><span class="led"></span>Agent Command Center</div>
         <div class="node center"><span class="led"></span>Authority + Entitlements</div>
         <div class="node center"><span class="led"></span>Work Items + Runs</div>
@@ -1116,8 +1120,8 @@
       </div>
     </div>
     <div class="arch-flow">
-      <span><span class="arrow">→</span> Humans observe & approve</span>
-      <span><span class="arrow">→</span> Agents emit work + evidence</span>
+      <span><span class="arrow">→</span> Humans steer through agents</span>
+      <span><span class="arrow">→</span> Agents read/write CRM</span>
       <span><span class="arrow">→</span> CRM enforces authority</span>
       <span><span class="arrow">↻</span> QA closes the loop</span>
     </div>
@@ -1128,7 +1132,7 @@
   <div class="section-head">
     <span class="num">§05</span>
     <h2>The agent <em>control loop</em></h2>
-    <p class="desc">The single most important loop in the whole system. From check-in to durable improvement.</p>
+    <p class="desc">The single most important loop in the whole system. Agents operate in CRM; humans steer through the agent UI; improvements become durable.</p>
   </div>
   <div class="loop">
     <div class="loop-step">
@@ -1164,7 +1168,7 @@
     <div class="loop-step">
       <div class="step-num">07</div>
       <h5>Human decides</h5>
-      <p>Approve · deny · revise · pause</p>
+      <p>Agent presents → approve · deny · revise · pause</p>
     </div>
     <div class="loop-step">
       <div class="step-num">08</div>
@@ -1253,7 +1257,7 @@
       <span class="mode-tag">MODE A</span>
       <h4>Monitor-only Control Layer</h4>
       <div class="recommended">▸ BUILD FIRST · PROVE FIRST</div>
-      <p>CRM stores health, work, evidence, approvals, QA, context. Customer CRM remains system of record. Lowest risk, highest leverage.</p>
+      <p>CRM stores health, work, evidence, approvals, QA, context for agents to operate against. Customer CRM remains system of record. Lowest risk, highest leverage.</p>
       <div class="order">// order: 1 of 3</div>
     </div>
     <div class="mode">
@@ -1331,7 +1335,7 @@
   <div class="section-head">
     <span class="num">§09</span>
     <h2>The <em>north-star demo</em></h2>
-    <p class="desc">Not an admin panel. The first demo proves the entire platform in one loop.</p>
+    <p class="desc">Not an admin panel. The first demo proves agents can use CRM as substrate while humans use the agent as the UI.</p>
   </div>
   <div class="north-star">
     <div class="label">★ THE PROOF</div>
@@ -1363,7 +1367,7 @@
     <p class="desc">The non-obvious commitments. The ones we hold when pressure mounts.</p>
   </div>
   <div class="principles">
-    <div class="principle"><div class="pn">01</div><p><b>Agents are primary operators.</b> Humans are supervisors and decision-makers, not data-entry clerks.</p></div>
+    <div class="principle"><div class="pn">01</div><p><b>Agents are the primary CRM users.</b> Humans use agents as the UI; they are supervisors and decision-makers, not data-entry clerks.</p></div>
     <div class="principle"><div class="pn">02</div><p><b>Operational truth, not vanity dashboards.</b> Show what the system actually did.</p></div>
     <div class="principle"><div class="pn">03</div><p><b>Every action: scope, authority, evidence, audit.</b> Non-negotiable.</p></div>
     <div class="principle"><div class="pn">04</div><p><b>Approvals are batched and risk-tiered.</b> No constant manual babysitting.</p></div>
@@ -1372,12 +1376,12 @@
     <div class="principle"><div class="pn">07</div><p><b>Managed calibration is the moat.</b> Everything else is table stakes.</p></div>
     <div class="principle"><div class="pn">08</div><p><b>No production authority expansion without explicit approval.</b> Ever.</p></div>
     <div class="principle"><div class="pn">09</div><p><b>No secrets in Git, memory, docs, fixtures, or logs.</b> Anywhere.</p></div>
-    <div class="principle"><div class="pn">10</div><p><b>Beautiful UI is secondary</b> to making the operational loop trustworthy.</p></div>
+    <div class="principle"><div class="pn">10</div><p><b>CRM screens are secondary</b> to making the agent-mediated operational loop trustworthy.</p></div>
   </div>
 </section>
 <footer>
   <div class="div"></div>
-  <div>END OF DOCUMENT · CANONICAL VISUAL DRAFT · 2026-05-07</div>
+  <div>END OF DOCUMENT · CANONICAL VISUAL DRAFT · 2026-05-07 · AGENT-AS-UI REVISION</div>
   <div style="margin-top:8px;color:var(--text-faint);text-transform:none;letter-spacing:0;font-family:var(--serif);font-style:italic;font-size:14px;">
     "If this loop works, the product is real."
   </div>
